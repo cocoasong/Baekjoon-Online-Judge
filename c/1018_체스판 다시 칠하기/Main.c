@@ -31,16 +31,16 @@ int recolor(char chess[8][8], char startChar, int base){
 
 int main(void){
     char input[50][50];
-    char temp[51];
+    char temp;
     char chess[8][8];
     int row, col;
 
-    scanf("%d %d ", &row, &col);
+    scanf("%d %d", &row, &col);
 
     for(int i = 0; i < row; i++){
-        fgets(temp, 51,stdin);
         for(int j = 0; j < col; j++){
-            input[i][j] = temp[j];
+            scanf(" %c", &temp);
+            input[i][j] = temp;
         }
     }
 
