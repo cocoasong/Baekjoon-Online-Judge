@@ -2,23 +2,27 @@
 #include <string.h>
 #include <stdlib.h>
 
-int triMin(int a, int b, int c){
-    int min = a;
-    
-    if(min > b){
-        min = b;
-        if(min > c){
-            min = c;
-        }
-    }
-    else{
-        if(min > c){
-            min = c;
-        }
+char* DeleteZero(char* num){
+    char temp[8] = {'0'};
+    char* res;
+
+    int idx = 0;
+    while(num[idx] == '0'){
+        idx++;
     }
 
-    return min;
+    int resIdx = 0;
+    if(idx != strlen(num)){
+        for(int i = idx; i < strlen(num); i++){
+            temp[resIdx] = num[i];
+            resIdx++; 
+        }
 
+        temp[resIdx] = '\0';
+    }
+
+    res = temp;
+    return res;
 }
 
 int ButtonDistance(int target, int base){
@@ -29,8 +33,6 @@ int ButtonDistance(int target, int base){
         return base - target;
     }
 }
-
-
 
 int main(void){
     int targetChannel;
@@ -63,72 +65,148 @@ int main(void){
         }
     }
 
+    
+    //printf("%d %d\n", targetChannel, N);
+    //for(int i = 0; i < 10; i++){
+    //    printf("%d ", button[i]);
+    //}
+    //printf("\n");
+    //printf("MAX: %d\nMIN: %d\n", maxNum, minNum);
+    
+    
+    char sameHigh[8];
+    char sameLow[8];
+    char bigLow[8];
+    char smallHigh[8];
 
-    char high[7], low[7];   // closest higher(or lower) than targeChannel
-    int baseNum, highNum, lowNum;
-    int highDiff, lowDiff;
-    int res;
-    for(int i = 0; i < strlen(targetChannelStr); i++){
-        highNum = lowNum = baseNum = targetChannelStr[i] - '0';
-        if(button[baseNum]){
-            high[i] = targetChannelStr[i];
-            low[i] = targetChannelStr[i];
+    int res = ButtonDistance(targetChannel, 100);
+    int baseNum, higherBaseNum, lowerBaseNum;
+
+    if(N != 10){
+        //CASE 1: Same Digit
+        for(int i = 0; i < strlen(targetChannelStr); i++){
+            baseNum = higherBaseNum = lowerBaseNum = targetChannelStr[i] - '0';
+            if(button[baseNum]){
+                sameHigh[i] = targetChannelStr[i];
+                sameLow[i] = targetChannelStr[i];
+            }        
+            else{
+                while(!button[higherBaseNum] || !button[lowerBaseNum]){
+                    if(!button[higherBaseNum]){
+                        if(higherBaseNum != 9){
+                            higherBaseNum++;
+                        }
+                        else if(higherBaseNum == 9){
+                            if(i != 0){
+                                sameHigh[i - 1]++;
+                                while(!button[sameHigh[i - 1] - '0']){
+                                    sameHigh[i - 1]++;
+                                }
+                                higherBaseNum = minNum;
+                            }
+                            else{
+                                higherBaseNum = maxNum;
+                            }
+                        }
+                    }
+
+                    if(!button[lowerBaseNum]){
+                        if(lowerBaseNum != 0){
+                            lowerBaseNum--;
+                        }
+                        else if(lowerBaseNum == 0){
+                            if(i != 0){
+                                sameLow[i - 1]--;
+                                while(!button[sameLow[i - 1] - '0']){
+                                    sameLow[i - 1]--;
+                                }
+                                lowerBaseNum = maxNum;
+                            }
+                            else{
+                                lowerBaseNum = minNum;
+                            }
+                        }
+                    }                    
+                }
+                sameHigh[i] = higherBaseNum + '0';
+                sameLow[i] = lowerBaseNum + '0';
+
+                for(int j = i + 1; j < strlen(targetChannelStr); j++){
+                    sameHigh[j] = minNum + '0';
+                    sameLow[j] = maxNum + '0';
+                }
+
+                break;
+            }
+        }
+        sameHigh[strlen(targetChannelStr)] = '\0';
+        sameLow[strlen(targetChannelStr)] = '\0';
+
+        if(sameHigh[0] == '0'){
+            strcpy(sameHigh, DeleteZero(sameHigh));
+        }
+        if(sameLow[0] == '0'){
+            strcpy(sameLow, DeleteZero(sameLow));
+        }
+
+        //CASE 2: Big Digit
+        for(int i = 0; i < strlen(targetChannelStr) + 1; i++){
+            bigLow[i] = minNum + '0';
+            bigLow[strlen(targetChannelStr) + 1] = '\0';
+        }
+
+        //CASE 3: Small Digit
+        if(strlen(targetChannelStr) != 1){
+            for(int i = 0; i < strlen(targetChannelStr) - 1; i++){
+                smallHigh[i] = maxNum + '0';
+            }
+            smallHigh[strlen(targetChannelStr) - 1] = '\0';
         }
         else{
-            while(!(button[highNum] || button[lowNum])){
-                if(highNum != 9){
-                    highNum++;
-                }
-                if(lowNum != 0){
-                    lowNum--;
-                }
-            }
+            strcpy(smallHigh, sameLow);
+        }
 
-            if(button[highNum] && button[lowNum]){
-                high[i] = highNum + '0';
-                low[i] = lowNum + '0';
-                for(int j = i + 1; j < strlen(targetChannelStr); j++){
-                    high[j] = minNum;
-                    low[j] = maxNum;
-                }
-                high[strlen(targetChannelStr)] = '\0';
-                low[strlen(targetChannelStr)] = '\0';
-                break;
+    }
+    else{
+        strcpy(sameHigh, "100");
+        strcpy(sameLow, "100");
+        strcpy(bigLow, "100");
+        strcpy(smallHigh, "100");
+    }
+
+
+    if(maxNum == 0){
+        strcpy(bigLow, DeleteZero(bigLow));
+        strcpy(smallHigh, DeleteZero(smallHigh));
+    }
+    else if(minNum == 0){
+        baseNum = higherBaseNum = minNum;
+        higherBaseNum++;
+        while(!button[higherBaseNum]){
+            if(higherBaseNum != 9){
+                higherBaseNum++;
             }
-            else if(button[highNum]){
-                high[i] = highNum + '0';
-                for(int j = i + 1; j < strlen(targetChannelStr); j++){
-                    high[j] = minNum;
-                }
-                high[strlen(targetChannelStr)] = '\0';
-                strcpy(low, high);
-                break;
-            }
-            else if(button[lowNum]){
-                low[i] = lowNum + '0';
-                for(int j = i + 1; j < strlen(targetChannelStr); j++){
-                    low[j] = maxNum;
-                }
-                low[strlen(targetChannelStr)] = '\0';
-                strcpy(high, low);
-                break;
+            else{
+                higherBaseNum = maxNum;
             }
         }
+        bigLow[0] = higherBaseNum + '0';
     }
 
-    res = triMin(strlen(high) + ButtonDistance(targetChannel, atoi(high)), strlen(low) + ButtonDistance(targetChannel, atoi(low)), ButtonDistance(targetChannel, 100));
+    if(res > strlen(sameHigh) + ButtonDistance(targetChannel, atoi(sameHigh))){
+        res = strlen(sameHigh) + ButtonDistance(targetChannel, atoi(sameHigh));
+    }
+    if(res > strlen(sameLow) + ButtonDistance(targetChannel, atoi(sameLow))){
+        res = strlen(sameLow) + ButtonDistance(targetChannel, atoi(sameLow));
+    }
+    if(res > strlen(bigLow) + ButtonDistance(targetChannel, atoi(bigLow))){
+        res = strlen(bigLow) + ButtonDistance(targetChannel, atoi(bigLow));
+    }
+    if(res > strlen(smallHigh) + ButtonDistance(targetChannel, atoi(smallHigh))){
+        res = strlen(smallHigh) + ButtonDistance(targetChannel, atoi(smallHigh));
+    }
 
+    //printf("SAME HIGH:%s\nSAME LOW:%s\nBIG LOW:%s\nSMALL HIGH:%s\n", sameHigh, sameLow, bigLow, smallHigh);
     printf("%d\n", res);
-
-    /*
-    printf("%d %d\n", targetChannel, nMalfunction);
-    for(int i = 0; i < nMalfunction; i++){
-        printf("%d ", buttonMalfunction[i]);
-    }
-    printf("\n");
-    */
-
-
-
     return 0;
 }

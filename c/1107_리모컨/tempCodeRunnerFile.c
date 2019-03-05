@@ -1,0 +1,3 @@
+
+
+    int resIdx = 0;
