@@ -1,3 +1,8 @@
+// Code that fails
+// Not doing Brute Force
+// Cannot find the counter example
+
+/*
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -210,3 +215,63 @@ int main(void){
     printf("%d\n", res);
     return 0;
 }
+*/
+
+// Code with Brute Force
+#include <stdio.h>
+
+int lengthChannel(int channel, int* buttons){
+    int length = 0;
+    if(channel == 0){
+        return buttons[0];
+    }
+    while(channel != 0){
+        length++;
+        if(!buttons[channel % 10]){
+            return 0;
+        }
+        channel /= 10;
+    }
+    return length;
+}
+
+int main(void){
+    int N;
+    int MAX = 10000000;
+    int target;
+    int start = 100;
+    int button;
+    int buttons[10] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}; 
+    int res;
+
+    scanf("%d", &target);
+    scanf("%d", &N);
+
+    for(int i = 0; i < N; i++){
+        scanf("%d", &button);
+        buttons[button] = 0;
+    }
+
+    res = target - start;
+    if(res < 0){
+        res *= -1;
+    }
+
+    for(int i = 0; i < MAX; i++){
+        int length = lengthChannel(i, buttons);
+        if(length){
+            int diff = target - i;
+            if(diff < 0){
+                diff *= -1;
+            }
+            if(res > length + diff){
+                res = length + diff;
+            }
+        }
+    }
+
+    printf("%d\n", res);
+
+    return 0;
+}
+
